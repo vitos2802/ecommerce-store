@@ -1,12 +1,6 @@
 import { create } from "zustand";
 import apiClient from "@/lib/axios";
-
-interface User {
-  _id: string;
-  email: string;
-  name: string;
-  role: "user" | "admin";
-}
+import { User } from "@/types";
 
 interface AuthState {
   user: User | null;

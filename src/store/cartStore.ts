@@ -1,15 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-
-export interface CartItem {
-  productId: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-  description: string;
-  category: string;
-}
+import { CartItem } from "@/types";
 
 interface CartState {
   items: CartItem[];
@@ -41,7 +32,7 @@ export const useCartStore = create<CartState>()(
       addItem: (newItem) => {
         const currentItems = get().items;
         const existingItemIndex = currentItems.findIndex(
-          (item) => item.productId === newItem.productId
+          (item) => item._id === newItem._id
         );
 
         let updatedItems: CartItem[];
@@ -68,7 +59,7 @@ export const useCartStore = create<CartState>()(
 
       removeItem: (productId) => {
         const updatedItems = get().items.filter(
-          (item) => item.productId !== productId
+          (item) => item._id !== productId
         );
         const { totalQuantity, totalPrice } = calculateTotals(updatedItems);
 
@@ -94,7 +85,7 @@ export const useCartStore = create<CartState>()(
         }
 
         const updatedItems = get().items.map((item) =>
-          item.productId === productId ? { ...item, quantity } : item
+          item._id === productId ? { ...item, quantity } : item
         );
 
         const { totalQuantity, totalPrice } = calculateTotals(updatedItems);

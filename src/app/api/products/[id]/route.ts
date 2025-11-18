@@ -7,10 +7,10 @@ import { verifyUser, verifyAdmin } from "@/lib/auth/middleware";
 // GET /api/products/:id - отримати один товар (без авторизації)
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
