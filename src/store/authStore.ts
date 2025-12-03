@@ -100,6 +100,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         isLoading: false,
       });
     } catch {
+      // Якщо 401 — користувач не авторизований, це OK
       set({
         user: null,
         isLoggedIn: false,

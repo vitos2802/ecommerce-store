@@ -42,6 +42,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const token = generateToken({
       userId: newUser._id.toString(),
       email: newUser.email,
+      role: newUser.role,
     });
 
     //створення response з cookie
