@@ -39,11 +39,17 @@ export function Header() {
 
         {/* Nav Links */}
         <nav className="hidden md:flex gap-6">
-          <Link href="/" className="text-gray-600 hover:text-gray-900">
+          <Link
+            href="/"
+            className="text-gray-600 hover:text-gray-900 cursor-pointer focus:text-gray-900"
+          >
             Товари
           </Link>
           {user?.role === "admin" && (
-            <Link href="/admin" className="text-gray-600 hover:text-gray-900">
+            <Link
+              href="/admin"
+              className="text-gray-600 hover:text-gray-900 focus:text-gray-900 cursor-pointer"
+            >
               Адмін
             </Link>
           )}
