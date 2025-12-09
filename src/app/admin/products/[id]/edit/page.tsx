@@ -39,14 +39,18 @@ export default function EditProductPage({ params }: EditProductPageProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   // Отримати productId з params
+  // useEffect(() => {
+  //   params.then(({ id }) => {
+  //     setProductId(id);
+  //   });
+  // }, [params]);
+
+  // Завантажити товар
   useEffect(() => {
     params.then(({ id }) => {
       setProductId(id);
     });
-  }, [params]);
 
-  // Завантажити товар
-  useEffect(() => {
     if (!productId) return;
 
     const fetchProduct = async () => {
@@ -78,7 +82,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
     };
 
     fetchProduct();
-  }, [productId]);
+  }, [productId, params]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>

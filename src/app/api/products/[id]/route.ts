@@ -40,7 +40,7 @@ export async function GET(
 // DELETE /api/products/:id - видалити товар (тільки admin)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
     const userData = await verifyUser(request);
@@ -59,7 +59,7 @@ export async function DELETE(
 
     await connectDB();
 
-    const { id } = params;
+    const { id } = await params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { error: "Invalid product ID" },
@@ -89,7 +89,7 @@ export async function DELETE(
 // PATCH /api/products/:id - оновити товар (тільки admin, опціональні поля)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
     const userData = await verifyUser(request);
@@ -108,7 +108,7 @@ export async function PATCH(
 
     await connectDB();
 
-    const { id } = params;
+    const { id } = await params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { error: "Invalid product ID" },

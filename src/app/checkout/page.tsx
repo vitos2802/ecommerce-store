@@ -21,11 +21,17 @@ export default function CheckoutPage() {
   const [name, setName] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [clientSecret, setClientSecret] = useState("");
+  const [retryCount, setRetryCount] = useState(0);
 
   // Перевіряємо, чи кошик не порожній
   useEffect(() => {
     if (items.length === 0) {
       router.push("/cart");
+      return;
+    }
+
+    if (retryCount >= 3) {
+      toast.error("Забагато спроб. Спробуйте пізніше.");
       return;
     }
 
@@ -38,13 +44,18 @@ export default function CheckoutPage() {
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "Failed to create payment";
-        toast.error(message);
+        toast.error(message, {
+          action: {
+            label: "Повторити",
+            onClick: () => setRetryCount((c) => c + 1),
+          },
+        });
       }
     };
 
     // Створюємо Payment Intent
     createPaymentIntent();
-  }, [items, router, totalPrice]);
+  }, [items, router, totalPrice, retryCount]);
 
   // Заповнюємо email з профілю, якщо залогінений
   useEffect(() => {
@@ -103,6 +114,14 @@ export default function CheckoutPage() {
       setIsProcessing(false);
     }
   };
+
+  if (!clientSecret && items.length > 0) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-8 text-center">
+        <p className="text-gray-600">Підготовка до оплати...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
