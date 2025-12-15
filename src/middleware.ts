@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
+import { env } from "@/lib/env";
 
 export async function middleware(request: NextRequest) {
+  // Логування тільки в development
+  if (env.NODE_ENV === "development") {
+    console.log(`[Middleware] ${request.method} ${request.url}`);
+  }
+
   if (request.nextUrl.pathname.startsWith("/admin")) {
     const token = request.cookies.get("token")?.value;
 
-    // Просто перевіряємо, чи токен існує
     if (!token) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
-
-    // Детальну верифікацію робимо на Client Component
   }
 
   return NextResponse.next();

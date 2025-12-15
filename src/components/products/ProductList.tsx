@@ -10,7 +10,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 const CATEGORIES = ["Electronics", "Clothing", "Books", "Home", "Other"];
 
 export function ProductList() {
-  const { products, pagination, isLoading, error, fetchProducts, setCategory } =
+  const { products, pagination, isLoading, error, fetchProducts } =
     useProductStore();
 
   const searchParams = useSearchParams();
@@ -29,7 +29,7 @@ export function ProductList() {
 
   const handleCategoryChange = (cat: string | null) => {
     setSelectedCategory(cat);
-    setCategory(cat);
+    // setCategory(cat);
     fetchProducts(1, cat || undefined);
   };
 

@@ -1,10 +1,11 @@
 import jwt from "jsonwebtoken";
+import { env } from "@/lib/env";
 
-const JWT_SECRET: string = process.env.JWT_SECRET!;
+// const JWT_SECRET: string = process.env.JWT_SECRET!;
 
-if (!JWT_SECRET) {
-  throw new Error("Please define JWT_SECRET environment variable");
-}
+// if (!JWT_SECRET) {
+//   throw new Error("Please define JWT_SECRET environment variable");
+// }
 
 export interface TokenPayload {
   userId: string;
@@ -16,7 +17,7 @@ export interface TokenPayload {
  * Генерує JWT токен
  */
 export function generateToken(payload: TokenPayload, expiresIn = "7d"): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn } as jwt.SignOptions);
+  return jwt.sign(payload, env.JWT_SECRET, { expiresIn } as jwt.SignOptions);
 }
 
 /**
@@ -24,7 +25,7 @@ export function generateToken(payload: TokenPayload, expiresIn = "7d"): string {
  */
 export function verifyToken(token: string): TokenPayload | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as TokenPayload;
+    const decoded = jwt.verify(token, env.JWT_SECRET) as TokenPayload;
     return decoded;
   } catch {
     return null;

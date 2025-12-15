@@ -189,7 +189,7 @@ export default function NewProductPage() {
 
           {/* Category */}
           <div>
-            <Label htmlFor="category">Категорія</Label>
+            <Label>Категорія</Label>
             <Select
               value={formData.category}
               onValueChange={handleCategoryChange}
