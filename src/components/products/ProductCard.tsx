@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { CldImage } from "next-cloudinary";
 import Image from "next/image";
 import { Product } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,14 +9,24 @@ import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/cartStore";
 import { toast } from "sonner";
 import { ShoppingCart } from "lucide-react";
+// ✅ ВИПРАВЛЕНО: Імпортуємо з client-utils замість config!
+import {
+  extractPublicId,
+  isCloudinaryUrl,
+} from "@/lib/cloudinary/client-utils";
 
 interface ProductCardProps {
   product: Product;
+  index?: number;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const addToCart = useCartStore((state) => state.addItem);
   const isOutOfStock = product.stock === 0;
+
+  // Перевіряємо чи це Cloudinary URL
+  const isCloudinary = isCloudinaryUrl(product.image);
+  const publicId = isCloudinary ? extractPublicId(product.image) : null;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -39,13 +50,31 @@ export function ProductCard({ product }: ProductCardProps) {
         <CardContent className="p-0">
           {/* Image */}
           <div className="relative w-full h-48 bg-gray-100">
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-cover"
-            />
+            {publicId ? (
+              // Cloudinary зображення з оптимізацією
+              <CldImage
+                priority={index < 3}
+                src={publicId}
+                alt={product.name}
+                width={400}
+                height={300}
+                crop="fill"
+                gravity="auto"
+                quality="auto"
+                format="auto"
+                className="object-cover w-full h-full"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            ) : (
+              // Fallback для non-Cloudinary URLs
+              <Image
+                src={product.image}
+                alt={product.name}
+                width={400}
+                height={300}
+                className="object-cover w-full h-full"
+              />
+            )}
             {isOutOfStock && (
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                 <span className="text-white font-bold">Немає в наявності</span>
@@ -59,7 +88,7 @@ export function ProductCard({ product }: ProductCardProps) {
               {product.name}
             </h3>
 
-            <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+            <p className="text-gray-600 text-sm mb-3 line-clamp-1">
               {product.description}
             </p>
 

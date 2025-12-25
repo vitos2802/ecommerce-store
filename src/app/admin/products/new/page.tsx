@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ImageUploader } from "@/components/upload/ImageUploader";
 import { toast } from "sonner";
 import apiClient from "@/lib/axios";
 import { ArrowLeft } from "lucide-react";
@@ -26,10 +27,19 @@ export default function NewProductPage() {
     price: "",
     description: "",
     image: "",
+    imagePublicId: "",
     stock: "",
     category: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleImageUpload = (url: string, publicId: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      image: url,
+      imagePublicId: publicId,
+    }));
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -55,8 +65,8 @@ export default function NewProductPage() {
       toast.error("Введіть опис товара");
       return false;
     }
-    if (!formData.image.trim()) {
-      toast.error("Введіть URL зображення");
+    if (!formData.image) {
+      toast.error("Додайте зображення товару");
       return false;
     }
     if (!formData.stock || parseInt(formData.stock) < 0) {
@@ -159,18 +169,12 @@ export default function NewProductPage() {
             />
           </div>
 
-          {/* Image URL */}
-          <div>
-            <Label htmlFor="image">URL зображення</Label>
-            <Input
-              id="image"
-              name="image"
-              value={formData.image}
-              onChange={handleChange}
-              placeholder="https://example.com/image.jpg"
-              disabled={isSubmitting}
-            />
-          </div>
+          {/* Image Uploader */}
+          <ImageUploader
+            onUploadSuccess={handleImageUpload}
+            folder="products"
+            maxSizeMB={5}
+          />
 
           {/* Stock */}
           <div>

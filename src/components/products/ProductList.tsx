@@ -1,57 +1,65 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useProductStore } from "@/store/productStore";
-import { useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useProducts } from "@/hooks/useProducts";
+import { useSearchParams, useRouter } from "next/navigation";
 import { ProductCard } from "./ProductCard";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
 const CATEGORIES = ["Electronics", "Clothing", "Books", "Home", "Other"];
 
 export function ProductList() {
-  const { products, pagination, isLoading, error, fetchProducts } =
-    useProductStore();
-
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // Завантажити товари при монтуванні або змінах
-  useEffect(() => {
-    const page = searchParams.get("page")
-      ? parseInt(searchParams.get("page")!)
-      : 1;
-    const cat = searchParams.get("category") || null;
+  const page = searchParams.get("page")
+    ? parseInt(searchParams.get("page")!)
+    : 1;
+  const category = searchParams.get("category") || undefined;
 
-    setSelectedCategory(cat);
-    fetchProducts(page, cat || undefined);
-  }, [searchParams, fetchProducts]);
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(
+    category
+  );
+
+  // ✅ TanStack Query з серверною пагінацією
+  const { data, isLoading, error } = useProducts({
+    page,
+    limit: 12,
+    category: selectedCategory,
+  });
 
   const handleCategoryChange = (cat: string | null) => {
-    setSelectedCategory(cat);
-    // setCategory(cat);
-    fetchProducts(1, cat || undefined);
+    setSelectedCategory(cat || undefined);
+
+    // Оновити URL
+    const params = new URLSearchParams();
+    params.set("page", "1");
+    if (cat) params.set("category", cat);
+
+    router.push(`?${params.toString()}`);
   };
 
-  const handlePreviousPage = () => {
-    if (pagination.page > 1) {
-      fetchProducts(pagination.page - 1, selectedCategory || undefined);
-    }
-  };
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams();
+    params.set("page", newPage.toString());
+    if (selectedCategory) params.set("category", selectedCategory);
 
-  const handleNextPage = () => {
-    if (pagination.page < pagination.pages) {
-      fetchProducts(pagination.page + 1, selectedCategory || undefined);
-    }
+    router.push(`?${params.toString()}`);
   };
 
   if (error) {
     return (
       <div className="text-center py-12">
-        <p className="text-red-600 font-semibold">{error}</p>
+        <p className="text-red-600 font-semibold">
+          Помилка завантаження товарів
+        </p>
       </div>
     );
   }
+
+  const products = data?.products || [];
+  const pagination = data?.pagination || { page: 1, pages: 1, total: 0 };
 
   return (
     <div className="space-y-6">
@@ -62,7 +70,7 @@ export function ProductList() {
         </label>
         <div className="flex flex-wrap gap-2">
           <Button
-            variant={selectedCategory === null ? "default" : "outline"}
+            variant={!selectedCategory ? "default" : "outline"}
             onClick={() => handleCategoryChange(null)}
             size="sm"
           >
@@ -83,8 +91,8 @@ export function ProductList() {
 
       {/* Loading State */}
       {isLoading ? (
-        <div className="text-center py-12">
-          <p className="text-gray-600">Завантаження товарів...</p>
+        <div className="flex justify-center items-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
         </div>
       ) : products.length === 0 ? (
         <div className="text-center py-12">
@@ -94,37 +102,42 @@ export function ProductList() {
         <>
           {/* Product Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {products.map((product) => (
-              <ProductCard key={product._id} product={product} />
+            {products.map((product, index) => (
+              <ProductCard key={product._id} product={product} index={index} />
             ))}
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center justify-center gap-4 py-8">
-            <Button
-              variant="outline"
-              onClick={handlePreviousPage}
-              disabled={pagination.page === 1 || isLoading}
-              className="flex items-center gap-2"
-            >
-              <ChevronLeft size={18} />
-              Попередня
-            </Button>
+          {pagination.pages > 1 && (
+            <div className="flex items-center justify-center gap-4 py-8">
+              <Button
+                variant="outline"
+                onClick={() => handlePageChange(pagination.page - 1)}
+                disabled={pagination.page === 1 || isLoading}
+                className="flex items-center gap-2"
+              >
+                <ChevronLeft size={18} />
+                Попередня
+              </Button>
 
-            <span className="text-sm text-gray-600">
-              Сторінка {pagination.page} з {pagination.pages}
-            </span>
+              <span className="text-sm text-gray-600">
+                Сторінка {pagination.page} з {pagination.pages}
+                <span className="text-xs text-gray-400 ml-2">
+                  ({pagination.total} товарів)
+                </span>
+              </span>
 
-            <Button
-              variant="outline"
-              onClick={handleNextPage}
-              disabled={pagination.page === pagination.pages || isLoading}
-              className="flex items-center gap-2"
-            >
-              Наступна
-              <ChevronRight size={18} />
-            </Button>
-          </div>
+              <Button
+                variant="outline"
+                onClick={() => handlePageChange(pagination.page + 1)}
+                disabled={pagination.page === pagination.pages || isLoading}
+                className="flex items-center gap-2"
+              >
+                Наступна
+                <ChevronRight size={18} />
+              </Button>
+            </div>
+          )}
         </>
       )}
     </div>

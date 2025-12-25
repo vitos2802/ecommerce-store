@@ -2,24 +2,29 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useAuthStore } from "@/store/authStore";
+import { useRouter } from "next/navigation";
+// import { useAuthStore } from "@/store/authStore";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { useCartStore } from "@/store/cartStore";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, LogOut, Menu } from "lucide-react";
+import { ShoppingCart, LogOut } from "lucide-react";
 
 export function Header() {
-  const { user, isLoggedIn, logout, checkAuth } = useAuthStore();
+  // const { user, isLoggedIn, logout, checkAuth } = useAuthStore();
+  const { user, isLoggedIn, logout, checkAuth } = useAuth();
   const { totalQuantity } = useCartStore();
   const [isHydrated, setIsHydrated] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    checkAuth();
+    // checkAuth();
     setIsHydrated(true);
   }, [checkAuth]);
 
   const handleLogout = async () => {
     try {
       await logout();
+      router.push("/");
     } catch {
       console.error("Logout failed");
     }

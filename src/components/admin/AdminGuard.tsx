@@ -2,15 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/store/authStore";
+// import { useAuthStore } from "@/store/authStore";
+import { useAuth } from "@/components/providers/AuthProvider";
 
 export function AdminGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { user, isLoggedIn, checkAuth, isLoading } = useAuthStore();
+  // const { user, isLoggedIn, checkAuth, isLoading } = useAuthStore();
+  const { user, isLoggedIn, checkAuth, isLoading } = useAuth();
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    checkAuth();
+    // checkAuth();
     setIsHydrated(true);
   }, [checkAuth]);
 

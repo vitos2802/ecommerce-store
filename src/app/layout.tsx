@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { AuthProvider } from "@/components/providers/AuthProvider";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 import { StripeProvider } from "@/components/providers/StripeProvider";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
@@ -30,10 +32,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50`}
       >
-        <StripeProvider>
-          <Header />
-          <main className="max-w-7xl mx-auto px-4 py-8">{children}</main>
-        </StripeProvider>
+        <QueryProvider>
+          <AuthProvider>
+            <StripeProvider>
+              <Header />
+              <main className="max-w-7xl mx-auto px-4 py-8">{children}</main>
+            </StripeProvider>
+          </AuthProvider>
+        </QueryProvider>
         <Toaster position="top-right" />
       </body>
     </html>

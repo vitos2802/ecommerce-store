@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import Link from "next/link";
-import { useAuthStore } from "@/store/authStore";
+// import { useAuthStore } from "@/store/authStore";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,9 +13,17 @@ import { toast } from "sonner";
 
 export function LoginForm() {
   const router = useRouter();
-  const { login, isLoading } = useAuthStore();
+  // const { login, isLoading } = useAuthStore();
+  const { login, isLoading, user } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    if (user) {
+      console.log("User logged in, redirecting...", user); // DEBUG
+      router.push("/");
+    }
+  }, [user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,13 +31,22 @@ export function LoginForm() {
     try {
       await login(email, password);
       toast.success("Ви успішно увійшли!");
-      router.push("/");
+      // router.push("/");
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Не вдалося увійти";
       toast.error(message);
     }
   };
+
+  // Якщо вже залогінений - показуємо loader
+  if (user) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>Redirecting...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-md mx-auto">
